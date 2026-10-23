@@ -21,6 +21,14 @@ const rolePermissions = {
   transport: ['page:dashboard', 'page:requests', 'page:department', 'page:transport', 'page:profile', 'page:notifications', 'request:read:transport', 'request:update:transport', 'request:comment:transport'],
   lab: ['page:dashboard', 'page:catalog', 'page:requests', 'page:department', 'page:resources', 'page:profile', 'page:notifications', 'request:read:laboratory', 'request:read:maintenance', 'request:update:laboratory', 'request:update:maintenance', 'request:comment:laboratory', 'request:comment:maintenance'],
 }
+const demoAccounts = [
+  { username: 'yara', password: 'Yara@2026', fullName: 'Yara', role: 'student', universityId: 'NU-DEMO-1001', college: 'computer-science', department: null, specialization: 'Information Systems', jobTitle: null, mobile: '+966500000101', email: 'yara.demo@example.test' },
+  { username: 'ahmed', password: 'Ahmed@2026', fullName: 'Dr. Ahmed', role: 'faculty', universityId: 'NU-DEMO-2001', college: 'computer-science', department: null, specialization: 'Computer Science', jobTitle: 'Faculty Member', mobile: '+966500000102', email: 'ahmed.demo@example.test' },
+  { username: 'aljazi', password: 'Aljazi@2026', fullName: 'Aljazi', role: 'maintenance', universityId: null, college: null, department: 'Maintenance Department', specialization: null, jobTitle: 'Maintenance Employee', mobile: '+966500000103', email: 'aljazi.demo@example.test' },
+  { username: 'sarah', password: 'Sarah@2026', fullName: 'Sarah', role: 'transport', universityId: null, college: null, department: 'Transportation Department', specialization: null, jobTitle: 'Transportation Employee', mobile: '+966500000104', email: 'sarah.demo@example.test' },
+  { username: 'hajar', password: 'Hajar@2026', fullName: 'Hajar', role: 'lab', universityId: null, college: null, department: 'Laboratory Department', specialization: null, jobTitle: 'Laboratory Employee', mobile: '+966500000105', email: 'hajar.demo@example.test' },
+]
+
 const hashPassword = (password) => {
   const salt = crypto.randomBytes(16)
   const key = crypto.scryptSync(password, salt, 64)
@@ -128,14 +136,27 @@ const seedDatabase = (database) => {
       database.run('INSERT OR IGNORE INTO role_permissions (role, permission) VALUES (?, ?)', [role, permission])
     }
   }
-  database.run(
-    `UPDATE users SET status = 'inactive'
-     WHERE lower(username) IN ('yara', 'asmaa', 'aljazi', 'sarah', 'hajar')
-        OR email IN (
-          'yara.demo@example.test', 'asmaa.demo@example.test', 'aljazi.demo@example.test',
-          'sarah.demo@example.test', 'hajar.demo@example.test'
-        )`,
-  )
+  database.run(`UPDATE users SET status = 'inactive' WHERE lower(username) = 'asmaa' OR email = 'asmaa.demo@example.test'`)
+  for (const account of demoAccounts) {
+    database.run(
+      `INSERT INTO users
+        (username, password_hash, full_name, role, university_id, college, department, specialization, job_title, mobile, email, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+       ON CONFLICT(username) DO UPDATE SET
+         password_hash = excluded.password_hash,
+         full_name = excluded.full_name,
+         role = excluded.role,
+         university_id = excluded.university_id,
+         college = excluded.college,
+         department = excluded.department,
+         specialization = excluded.specialization,
+         job_title = excluded.job_title,
+         mobile = excluded.mobile,
+         email = excluded.email,
+         status = 'active'`,
+      [account.username, hashPassword(account.password), account.fullName, account.role, account.universityId, account.college, account.department, account.specialization, account.jobTitle, account.mobile, account.email],
+    )
+  }
   saveDatabase(database)
 }
 

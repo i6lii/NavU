@@ -249,6 +249,7 @@ const translations: Record<Locale, Record<string, string>> = {
     profileSaved: 'Profile changes saved.', choosePhoto: 'Update profile photo', profileDepartment: 'College / department',
     profileRole: 'Role', emailAddress: 'Email address', maintenanceDept: 'Maintenance Department',
     transportDept: 'Transportation Department', laboratoryDept: 'Laboratory Department',
+    demoAccountsTitle: 'Demo accounts', demoAccountsNote: 'Fictional accounts for demonstration only. Do not use these credentials for real data.',
     unauthorizedPage: 'This page is not available for your account.',
     roomConflict: 'This room is unavailable or reserved during the selected time.', capacityWarning: 'Attendees exceed the available configured seats.',
     layoutWarning: 'Configured seating cannot exceed the supported room capacity.', selectRoom: 'Select a room to preview it.',
@@ -321,6 +322,7 @@ const translations: Record<Locale, Record<string, string>> = {
     profileSaved: 'تم حفظ بيانات الملف الشخصي.', choosePhoto: 'تحديث الصورة الشخصية', profileDepartment: 'الكلية / القسم',
     profileRole: 'الدور', emailAddress: 'البريد الإلكتروني', maintenanceDept: 'قسم الصيانة',
     transportDept: 'قسم النقل والحركة', laboratoryDept: 'قسم المختبرات',
+    demoAccountsTitle: 'حسابات عرض افتراضية', demoAccountsNote: 'حسابات وبيانات خيالية للعرض فقط، لا تستخدميها لبيانات حقيقية.',
     unauthorizedPage: 'هذه الصفحة غير متاحة لهذا الحساب.',
     roomConflict: 'القاعة غير متاحة أو محجوزة في الوقت المحدد.', capacityWarning: 'عدد الحضور يتجاوز المقاعد المضبوطة المتاحة.',
     layoutWarning: 'عدد المقاعد يتجاوز السعة المدعومة للقاعة.', selectRoom: 'اختر قاعة لمعاينتها.',
@@ -1153,6 +1155,15 @@ function App() {
             {loginMessage && <p className="login-message" role="status">{loginMessage}</p>}
             <button className="button button-primary" type="submit">{t('loginButton')} <ChevronLeft size={15} /></button>
           </form>
+          <details className="demo-accounts">
+            <summary>{t('demoAccountsTitle')}</summary>
+            <p className="login-note">{t('demoAccountsNote')}</p>
+            <div><span>Yara · {t('student')}</span><code>yara / Yara@2026</code></div>
+            <div><span>Dr. Ahmed · {t('faculty')}</span><code>ahmed / Ahmed@2026</code></div>
+            <div><span>Aljazi · {t('maintenanceRole')}</span><code>aljazi / Aljazi@2026</code></div>
+            <div><span>Sarah · {t('transportRole')}</span><code>sarah / Sarah@2026</code></div>
+            <div><span>Hajar · {t('lab')}</span><code>hajar / Hajar@2026</code></div>
+          </details>
         </section>
         <footer className="login-footer">{t('footerCopyright')}</footer>
       </div>
