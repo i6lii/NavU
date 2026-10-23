@@ -10,7 +10,6 @@ const dataDir = path.join(rootDir, 'data')
 const distDir = path.join(rootDir, 'dist')
 const databasePath = path.join(dataDir, 'navu.sqlite')
 const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3001)
-const sessions = new Map()
 const roles = ['student', 'faculty', 'maintenance', 'transport', 'lab']
 const requestServices = ['room', 'laboratory', 'maintenance', 'transport']
 const allowedStatuses = ['submitted', 'review', 'approved', 'rejected', 'completed', 'cancelled']
@@ -108,6 +107,13 @@ const seedDatabase = (database) => {
       permission TEXT NOT NULL,
       PRIMARY KEY (role, permission)
     );
+    CREATE TABLE IF NOT EXISTS sessions (
+      token_hash TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('student', 'faculty', 'maintenance', 'transport', 'lab')),
+      expires_at INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
     CREATE TABLE IF NOT EXISTS requests (
       id TEXT PRIMARY KEY,
       owner_user_id INTEGER NOT NULL,
@@ -157,6 +163,7 @@ const seedDatabase = (database) => {
       [account.username, hashPassword(account.password), account.fullName, account.role, account.universityId, account.college, account.department, account.specialization, account.jobTitle, account.mobile, account.email],
     )
   }
+  database.run('DELETE FROM sessions WHERE expires_at <= ?', [Date.now()])
   saveDatabase(database)
 }
 
@@ -179,9 +186,16 @@ const getProfileById = (database, userId) => {
   return { ...user, permissions }
 }
 
-const getSession = (request) => {
+const hashSessionToken = (token) => crypto.createHash('sha256').update(token).digest('hex')
+
+const getSession = (database, request) => {
   const token = request.headers.authorization?.replace(/^Bearer\s+/i, '')
-  return token ? sessions.get(token) : null
+  if (!token) return null
+  const session = queryRows(database,
+    'SELECT user_id, role FROM sessions WHERE token_hash = ? AND expires_at > ? LIMIT 1',
+    [hashSessionToken(token), Date.now()],
+  )[0]
+  return session ? { userId: session.user_id, role: session.role } : null
 }
 
 const hasPermission = (database, session, permission) =>
@@ -249,7 +263,11 @@ const main = async () => {
           return
         }
         const token = crypto.randomBytes(32).toString('hex')
-        sessions.set(token, { userId: user.id, role: user.role })
+        database.run(
+          'INSERT INTO sessions (token_hash, user_id, role, expires_at) VALUES (?, ?, ?, ?)',
+          [hashSessionToken(token), user.id, user.role, Date.now() + 30 * 24 * 60 * 60 * 1000],
+        )
+        saveDatabase(database)
         json(response, 200, { token, profile: getProfileById(database, user.id) })
       } catch (error) {
         json(response, error.statusCode ?? 400, { message: 'تعذر قراءة طلب تسجيل الدخول.' })
@@ -259,12 +277,15 @@ const main = async () => {
 
     if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
       const token = request.headers.authorization?.replace(/^Bearer\s+/i, '')
-      if (token) sessions.delete(token)
+      if (token) {
+        database.run('DELETE FROM sessions WHERE token_hash = ?', [hashSessionToken(token)])
+        saveDatabase(database)
+      }
       json(response, 200, { success: true })
       return
     }
 
-    const session = getSession(request)
+    const session = getSession(database, request)
     if (url.pathname.startsWith('/api/') && !session &&
         !(request.method === 'GET' && url.pathname === '/api/health') &&
         !(request.method === 'POST' && url.pathname === '/api/auth/login')) {
