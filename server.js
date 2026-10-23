@@ -432,8 +432,8 @@ const main = async () => {
     json(response, 404, { message: 'المسار غير موجود.' })
   })
 
-  server.listen(port, process.env.HOST ?? '127.0.0.1', () => {
-    console.log(`NavU API listening on http://localhost:${port}`)
+  server.listen(port, process.env.HOST ?? '0.0.0.0', () => {
+    console.log(`NavU API listening on port ${port}`)
     console.log(`SQLite database: ${databasePath}`)
   })
 }
