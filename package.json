@@ -7,7 +7,7 @@
     "node": "20.19.0"
   },
   "scripts": {
-    "dev": "concurrently \"node server.js\" \"vite\"",
+    "dev": "concurrently -k \"node server.js\" \"vite\"",
     "dev:api": "node server.js",
     "build": "tsc -b && vite build",
     "start": "node server.js",
