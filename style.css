@@ -88,9 +88,19 @@ textarea{min-height:95px;resize:vertical}
 .toast{padding:.8rem 1rem;border-radius:10px;background:var(--navy);color:#fff;box-shadow:var(--shadow)}
 .toast.error{background:#9f2d26}
 .auth-page{display:grid;min-height:100vh;grid-template-columns:minmax(300px,.8fr) minmax(360px,1.2fr);background:var(--page)}
-.auth-brand{display:grid;align-content:center;justify-items:center;gap:1rem;padding:3rem;backgroundlinear-gradient(rgba(16, 43, 78, 0.45), rgba(16, 43, 78, 0.65)),url("https://www.alwatan.com.sa/uploads/images/2021/02/16/621889.jpeg") center center / cover no-repeat;}
-.auth-brand .brand-mark{width:76px;height:76px;font-size:2.3rem}
-.auth-brand h1{margin:0;color:#fff;font-size:3rem}.auth-brand p{max-width:360px;color:#d8e5f2}
+.auth-brand{display:grid;align-content:center;justify-items:center;gap:1rem;padding:3rem;background:linear-gradient(rgba(86, 134, 197, 0.45), rgba(16, 43, 78, 0.65)),url("https://www.alwatan.com.sa/uploads/images/2021/02/16/621889.jpeg") center center / cover no-repeat;}
+.brand-mark {
+    background: transparent;
+    border: none;
+}
+
+.brand-mark img {
+    display: block;
+    width:250%;
+    height: 200%;
+    object-fit: contain;
+}
+.auth-brand h1{margin:0;color:#ffffff;font-size:3rem}.auth-brand p{max-width:360px;color:#fafbfb}
 .auth-panel{display:grid;place-items:center;padding:1.5rem}
 .auth-card{width:min(100%,520px);padding:clamp(1.2rem,4vw,2.4rem);border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}
 .auth-card h2{margin:.2rem 0;color:var(--navy);font-size:1.6rem}.auth-card>p{margin:.25rem 0 1.2rem;color:var(--muted)}
